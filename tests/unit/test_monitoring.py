@@ -2,6 +2,7 @@
 Unit tests for the monitoring system.
 """
 import pytest
+import time
 from unittest.mock import MagicMock, patch
 from datetime import datetime, timedelta
 
