@@ -1,0 +1,39 @@
+# Core dependencies
+fastapi>=0.103.1
+uvicorn>=0.23.2
+pydantic>=2.3.0
+python-multipart>=0.0.6
+pyyaml>=6.0.1
+httpx>=0.24.1
+python-dotenv>=1.0.0
+
+# Cloud provider SDKs
+boto3>=1.28.40
+google-cloud-storage>=2.10.0
+google-cloud-aiplatform>=1.36.0
+azure-storage-blob>=12.17.0
+azure-mgmt-containerservice>=26.0.0
+azure-mgmt-cognitiveservices>=13.5.0
+
+# Monitoring and metrics
+prometheus-client>=0.17.1
+opentelemetry-api>=1.20.0
+opentelemetry-sdk>=1.20.0
+opentelemetry-exporter-prometheus>=1.20.0
+
+# ML and versioning
+mlflow>=2.7.1
+dvc>=3.22.0
+wandb>=0.15.10
+packaging>=23.1
+
+# Testing
+pytest>=7.4.2
+pytest-asyncio>=0.21.1
+pytest-cov>=4.1.0
+
+# Development
+black>=23.9.1
+isort>=5.12.0
+flake8>=6.1.0
+mypy>=1.5.1

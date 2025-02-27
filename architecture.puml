@@ -1,0 +1,138 @@
+@startuml LLMOps Manager Architecture
+
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v16.0/dist
+!define GCPPuml https://raw.githubusercontent.com/davidholsgrove/gcp-icons-for-plantuml/master/dist
+!define AzurePuml https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/master/dist
+
+!includeurl AWSPuml/AWSCommon.puml
+!includeurl AWSPuml/MachineLearning/SageMaker.puml
+!includeurl AWSPuml/Storage/SimpleStorageService.puml
+!includeurl GCPPuml/GCPCommon.puml
+!includeurl GCPPuml/AI_and_Machine_Learning/AI_Platform.puml
+!includeurl AzurePuml/AzureCommon.puml
+!includeurl AzurePuml/AIMachineLearning/CognitiveServices.puml
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+package "LLMOps Manager" {
+  [Core Manager] as CoreManager
+  [Provider Abstraction] as ProviderAbstraction
+  
+  package "Deployment" {
+    [Pipeline Orchestrator] as PipelineOrchestrator
+    [Canary Deployment] as CanaryDeployment
+    [A/B Testing] as ABTesting
+  }
+  
+  package "Monitoring" {
+    [Metrics Collector] as MetricsCollector
+    [Alerting System] as AlertingSystem
+    [Drift Detector] as DriftDetector
+  }
+  
+  package "Scaling" {
+    [Auto Scaler] as AutoScaler
+    [Request Queue Manager] as RequestQueueManager
+    [Resource Optimizer] as ResourceOptimizer
+  }
+  
+  package "Versioning" {
+    [Artifact Registry] as ArtifactRegistry
+    [Prompt Repository] as PromptRepository
+    [Model Registry] as ModelRegistry
+  }
+  
+  package "API" {
+    [FastAPI Endpoints] as FastAPIEndpoints
+    [Rate Limiter] as RateLimiter
+    [Authentication] as Authentication
+  }
+  
+  package "CI/CD" {
+    [GitHub Actions] as GitHubActions
+    [Jenkins Pipeline] as JenkinsPipeline
+  }
+}
+
+package "Cloud Providers" {
+  package "AWS" {
+    [SageMaker] <<$SageMaker>>
+    [S3] <<$SimpleStorageService>>
+  }
+  
+  package "GCP" {
+    [Vertex AI] <<$AI_Platform>>
+  }
+  
+  package "Azure" {
+    [Azure ML] <<$CognitiveServices>>
+  }
+}
+
+package "Open Source Tools" {
+  [MLflow]
+  [Prometheus]
+  [Grafana]
+  [Seldon Core]
+  [DVC]
+  [Weights & Biases]
+}
+
+package "Infrastructure" {
+  [Terraform]
+  [Kubernetes]
+  [Docker]
+}
+
+' Core connections
+CoreManager --> ProviderAbstraction
+ProviderAbstraction --> AWS
+ProviderAbstraction --> GCP
+ProviderAbstraction --> Azure
+
+' Deployment connections
+CoreManager --> PipelineOrchestrator
+PipelineOrchestrator --> CanaryDeployment
+PipelineOrchestrator --> ABTesting
+CanaryDeployment --> Kubernetes
+ABTesting --> Kubernetes
+
+' Monitoring connections
+CoreManager --> MetricsCollector
+MetricsCollector --> Prometheus
+MetricsCollector --> Grafana
+MetricsCollector --> AlertingSystem
+MetricsCollector --> DriftDetector
+
+' Scaling connections
+CoreManager --> AutoScaler
+AutoScaler --> RequestQueueManager
+AutoScaler --> ResourceOptimizer
+AutoScaler --> Kubernetes
+
+' Versioning connections
+CoreManager --> ArtifactRegistry
+ArtifactRegistry --> DVC
+ArtifactRegistry --> MLflow
+ArtifactRegistry --> PromptRepository
+ArtifactRegistry --> ModelRegistry
+ModelRegistry --> [Weights & Biases]
+
+' API connections
+CoreManager --> FastAPIEndpoints
+FastAPIEndpoints --> RateLimiter
+FastAPIEndpoints --> Authentication
+
+' CI/CD connections
+GitHubActions --> PipelineOrchestrator
+JenkinsPipeline --> PipelineOrchestrator
+
+' Infrastructure connections
+Terraform --> AWS
+Terraform --> GCP
+Terraform --> Azure
+Kubernetes --> Docker
+Seldon Core --> Kubernetes
+
+@enduml
