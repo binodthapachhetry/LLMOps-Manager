@@ -16,6 +16,7 @@ LLMOps Manager provides a unified interface for managing the entire lifecycle of
 - **Version Control**: Manage model artifacts and prompts with versioning
 - **API-First Design**: RESTful API for integration with existing systems
 - **Security**: Built-in authentication and rate limiting
+- **CI/CD Pipeline**: Automated testing, building, and deployment with GitHub Actions
 
 ## Getting Started
 
@@ -24,6 +25,7 @@ LLMOps Manager provides a unified interface for managing the entire lifecycle of
 - Python 3.10+
 - Docker and Docker Compose (for local development)
 - Access to at least one cloud provider (AWS, GCP, or Azure)
+- Git (for version control and pre-commit hooks)
 
 ### Installation
 
@@ -38,12 +40,18 @@ LLMOps Manager provides a unified interface for managing the entire lifecycle of
    pip install -r requirements.txt
    ```
 
-3. Configure your cloud provider credentials according to their respective SDKs:
+3. Set up pre-commit hooks:
+   ```bash
+   pip install pre-commit
+   pre-commit install
+   ```
+
+4. Configure your cloud provider credentials according to their respective SDKs:
    - AWS: Configure AWS credentials via AWS CLI or environment variables
    - GCP: Set up application default credentials or provide a service account key
    - Azure: Configure Azure credentials via Azure CLI or environment variables
 
-4. Run the application:
+5. Run the application:
    ```bash
    uvicorn src.api.endpoints:app --host 0.0.0.0 --port 8000
    ```
@@ -105,12 +113,43 @@ For more detailed documentation, see:
 - [Configuration Guide](docs/configuration.md)
 - [Deployment Guide](docs/deployment.md)
 
-## Testing
+## Development
+
+### Code Quality
+
+This project uses several tools to ensure code quality:
+
+- **Black**: For code formatting
+- **isort**: For import sorting
+- **flake8**: For code linting
+- **pre-commit**: To run these checks automatically before each commit
+
+### CI/CD Pipeline
+
+The project includes a GitHub Actions workflow that:
+
+1. Runs automated tests on each push and pull request
+2. Builds the Docker image
+3. (Future) Deploys to staging/production environments
+
+To view the CI pipeline, check the Actions tab in the GitHub repository.
+
+### Testing
 
 Run the test suite:
 
 ```bash
-./scripts/run_tests.sh
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov=src
+
+# Run only unit tests
+pytest -m unit
+
+# Run only tests marked for CI
+pytest -m ci
 ```
 
 ## License
