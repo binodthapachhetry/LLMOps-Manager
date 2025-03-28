@@ -1,5 +1,5 @@
-# Use NVIDIA CUDA base image for GPU support
-FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+# Build stage
+FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04 AS builder
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -20,6 +20,37 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Create a virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy requirements file
+COPY requirements.txt .
+
+# Install Python dependencies in the virtual environment
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Runtime stage
+FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    TZ=UTC \
+    PATH="/opt/venv/bin:$PATH"
+
+# Install minimal runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 \
+    curl \
+    ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy virtual environment from builder stage
+COPY --from=builder /opt/venv /opt/venv
+
 # Create a non-root user
 RUN useradd -m -s /bin/bash llmops
 
@@ -29,12 +60,6 @@ RUN mkdir -p /app/config /app/logs /app/model_cache /app/prompt_cache \
 
 # Set working directory
 WORKDIR /app
-
-# Copy requirements file
-COPY requirements.txt .
-
-# Install Python dependencies
-RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
@@ -66,6 +91,9 @@ ENV LLMOPS_CONFIG_PATH=/app/config/llmops.yaml \
     LLMOPS_PROVIDER=aws \
     LLMOPS_API_KEY=test-api-key \
     PYTHONPATH=/app
+
+# Add version label
+LABEL version="0.1.0"
 
 # Command to run the application
 CMD ["uvicorn", "src.api.endpoints:app", "--host", "0.0.0.0", "--port", "8000"]
